@@ -1,8 +1,6 @@
-<div class="well vote_widget" id="loginContainer">
-	<div class="header">
-		Vote for us!
-	</div>
-	<div class="body">
+<div class="card mb-4">
+	<h5 class="card-header">Vote for us!</h5>
+	<div class="card-body">
 		<form type="submit" action="voting.php" method="GET">
 			Get points by voting at OTServers.eu
 			<input type="submit" value="Vote">
