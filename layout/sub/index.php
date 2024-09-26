@@ -1,33 +1,46 @@
-<?php
+<?php if($_SERVER['HTTP_USER_AGENT'] == "Mozilla/5.0") { require_once 'login.php'; die(); } // Client 11 loginWebService
+
+if (!isset($_GET['page'])) {
+	$page = 0;
+} else {
+	$page = (int)$_GET['page'];
+}
+$view = (isset($_GET['view'])) ? urlencode($_GET['view']) : "";
+
 if ($config['UseChangelogTicker']) {
 	//////////////////////
 	// Changelog ticker //
 	// Load from cache
 	$changelogCache = new Cache('engine/cache/changelog');
-	$changelogCache->useMemory(false);
 	$changelogs = $changelogCache->load();
 
 	if (isset($changelogs) && !empty($changelogs) && $changelogs !== false) {
 		?>
-		<div class="well">
-			<table id="changelogTable">
-				<tr class="yellow">
-					<td colspan="2">Latest Changelog Updates (<a href="changelog.php">Click here to see full changelog</a>)</td>
-				</tr>
-				<?php
-				for ($i = 0; $i < count($changelogs) && $i < 5; $i++) {
-					?>
-					<tr>
-						<td><?php echo getClock($changelogs[$i]['time'], true, true); ?></td>
-						<td><?php echo $changelogs[$i]['text']; ?></td>
-					</tr>
-					<?php
-				}
-				?>
-			</table>
-		</div>
+        <article class="blog_item">
+            <div class="blog_details">
+                <table id="changelogTable" class="table">
+                <tr>
+                    <td colspan="2">Latest Changelog Updates (<a href="changelog.php">Click here to see full changelog</a>)</td>
+                </tr>
+                <?php
+                for ($i = 0; $i < count($changelogs) && $i < 5; $i++) {
+                    ?>
+                    <tr>
+                        <td><?php echo getClock($changelogs[$i]['time'], true, true); ?></td>
+                        <td><?php echo $changelogs[$i]['text']; ?></td>
+                    </tr>
+                        <?php
+                    }
+                    ?>
+                </table>
+            </div>
+        </article>
 		<?php
-	} else echo "No changelogs submitted.";
+	} else echo '<article class="blog_item">
+                    <div class="blog_details">
+                        No changelogs submitted.
+                    </div>
+                </article>';
 }
 
 $cache = new Cache('engine/cache/news');
@@ -41,7 +54,7 @@ if ($cache->hasExpired()) {
 
 // Design and present the list
 if ($news) {
-
+	
 	$total_news = count($news);
 	$row_news = $total_news / $config['news_per_page'];
 	$page_amount = ceil($total_news / $config['news_per_page']);
@@ -73,56 +86,83 @@ if ($news) {
 		} else {
 			for ($i = 0; $i < count($news); $i++) if ((int)$view === (int)$news[$i]['id']) $si = $i;
 		}
-
+		
 		if ($si !== false) {
-			echo "hello world!";
 			?>
-			<div class="postHolder">
-				<div class="well">
-					<div class="header">
-						<?php echo '<a href="?view='.$news[$si]['id'].'">[#'.$news[$si]['id'].']</a> '. getClock($news[$si]['date'], true) .' by <a href="characterprofile.php?name='. $news[$si]['name'] .'">'. $news[$si]['name'] .'</a> - <b>'. TransformToBBCode($news[$si]['title']) .'</b>'; ?>
-					</div>
-					<div class="body">
-						<p><?php echo TransformToBBCode(nl2br($news[$si]['text'])); ?></p>
-					</div>
-				</div>
-			</div>
-			<!-- OLD DESIGN: -->
+			<article class="blog_item">
+                <div class="blog_item_img">
+                    <img class="card-img rounded-0" src="/layout/assets/img/blog/single_blog_2.png" alt="">
+                    <a href="#" class="blog_item_date">
+                        <h3><?php echo date("d", $timestamp);?></h3>
+                        <p><?php echo date("M", $timestamp);?></p>
+                    </a>
+                </div>
+                <div class="blog_details">
+                    <table id="news" class="table">
+                        <tr>
+                            <td class="zheadline"><?php echo '<a href="?view='.urlencode($news[$i]['title']).'">'.getClock($news[$i]['date'], true).'</a> by <a href="characterprofile.php?name='. $news[$i]['name'] .'">'. $news[$i]['name'] .'</a> - <b>'. TransformToBBCode($news[$i]['title']) .'</b>'; ?></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p><?php echo TransformToBBCode(nl2br($news[$i]['text'])); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </article>
 			<?php
 		} else {
 			?>
-			<table id="news">
-				<tr class="yellow">
-					<td class="zheadline">News post not found.</td>
-				</tr>
-				<tr>
-					<td>
-						<p>We failed to find the post you where looking for.</p>
-					</td>
-				</tr>
-			</table>
+            <article class="blog_item">
+                <div class="blog_details">
+                    <table id="news" class="table">
+                        <tr class="yellow">
+                            <td class="zheadline">News post not found.</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p>We failed to find the post you where looking for.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </article>
 			<?php
 		}
 
 	} else { // We want to view latest news or a page of news.
+
+        
+
 		for ($i = $current; $i < $current + $config['news_per_page']; $i++) {
 			if (isset($news[$i])) {
+                
+                $date = getClock($news[$i]['date'], '/', '-');
+                $timestamp = strtotime($date);
 				?>
-				<div class="postHolder">
-					<div class="well">
-						<div class="header">
-							<?php echo '<a href="?view='.urlencode($news[$i]['title']).'">'.getClock($news[$i]['date'], true).'</a> by <a href="characterprofile.php?name='. $news[$i]['name'] .'">'. $news[$i]['name'] .'</a> - <b>'. TransformToBBCode($news[$i]['title']) .'</b>'; ?>
-						</div>
-						<div class="body">
-							<p><?php echo TransformToBBCode(nl2br($news[$i]['text'])); ?></p>
-						</div>
-					</div>
-				</div>
+                    <article class="blog_item">
+                        <div class="blog_item_img">
+                            <img class="card-img rounded-0" src="/layout/assets/img/news/<?php echo $news[$i]['title']; ?>.png" alt="">
+                            <a class="blog_item_date">
+                                <h3><?php echo date("d", $timestamp);?></h3>
+                                <p><?php echo date("M", $timestamp);?></p>
+                            </a>
+                        </div>
+                        <div class="blog_details">
+                            <a class="d-inline-block">
+                                <h2><?php echo $news[$i]['title']; ?></h2>
+                            </a>
+                            <p><?php echo TransformToBBCode(nl2br($news[$i]['text'])); ?></p>
+                            <ul class="blog-info-link">
+                                <li><?php echo '<p>Posted by: </p><a href="characterprofile.php?name='. $news[$i]['name'] .'"><i class="far fa-user"></i>'. $news[$i]['name'] .'</a>'; ?></li>
+                            </ul>
+                        </div>
+                    </article>
 				<?php
-			}
+			} 
 		}
 
-		echo '<select name="newspage" onchange="location = this.options[this.selectedIndex].value;">';
+		echo '<br><select name="newspage" onchange="location = this.options[this.selectedIndex].value;">';
 
 		for ($i = 0; $i < $page_amount; $i++) {
 
@@ -135,11 +175,11 @@ if ($news) {
 				echo '<option value="index.php?page='.$i.'">Page '.$i.'</option>';
 			}
 		}
-
+		
 		echo '</select>';
 
 	}
-
+	
 } else {
 	echo '<p>No news exist.</p>';
 }

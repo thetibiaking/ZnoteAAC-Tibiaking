@@ -1,31 +1,26 @@
-<div class="well loginContainer widget" id="loginContainer">
-	<div class="header">
-		Login / Register
-	</div>
-	<div class="body">
-		<form class="loginForm" action="login.php" method="post">
-			<div class="well">
-				<label for="login_username">Userame:</label> <input type="text" name="username" id="login_username">
-			</div>
-			<div class="well">
-				<label for="login_password">Password:</label> <input type="password" name="password" id="login_password">
-			</div>
-			<?php if ($config['twoFactorAuthenticator']): ?>
-				<div class="well">
-					<label for="login_password">Token:</label> <input type="password" name="authcode">
-				</div>
-			<?php endif; ?>
-			<div class="well">
-				<input type="submit" value="Log in" class="submitButton">
-			</div>
+<!-- Login / Register Widget -->
+<aside class="single_sidebar_widget search_widget">
+	<h5 class="widget_title">Login / Register</h5>
+		<form action="login.php" method="post">
+			<label for="username">Username:</label>
+			<input id="username" class="form-control" type="text" name="username">
+			<br>
+			<label for="password">Password:</label>
+			<input id="password" class="form-control" type="password" name="password">
+			<?php if ($config['twoFactorAuthenticator'] == true) { ?>
+				<label for="token">Token:</label>
+				<input id="token" class="form-control" type="password" name="authcode">
+			<?php } ?>
+			<br>
+			<button class="button rounded-0 primary-bg text-white w-100 btn_1" type="submit">Login</button>
 			<?php
-				/* Form file */
-				Token::create();
+				if ($config['use_token'] == true) {
+					/* Form file */
+					Token::create();
+				}
 			?>
-			<center>
-				<h3><a href="register.php">New account</a></h3>
-				<p>Lost <a href="recovery.php?mode=username">username</a> or <a href="recovery.php?mode=password">password</a>?</p>
-			</center>
 		</form>
-	</div>
-</div>
+		<hr>
+		<button class="button rounded-0 primary-bg text-white w-100 btn_1" onclick="window.location.href='recovery.php'">Account Recovery</button>
+		<button class="button rounded-0 primary-bg text-white w-100 btn_1" onclick="window.location.href='register.php'">New account</button>
+</aside>
